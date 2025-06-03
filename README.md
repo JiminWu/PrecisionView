@@ -12,6 +12,7 @@ The directory 'Phase Mask Fabrication' contains the height map generated from th
 
 ## System requirements
 Python 3.8+
+
 Required packages and versions can be found in environment.yml. It can also be used to create a conda environment.
 
 ## End-to-end training 
