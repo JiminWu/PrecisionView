@@ -39,13 +39,5 @@ class load_data(Dataset):
         crop_end_y = self.image_width_org - (self.image_width_org - self.image_width_crop) // 2 + self.image_shift_width
         
         im_gt= im_gt[crop_start_x:crop_end_x,crop_start_y:crop_end_y]
-        
-        #im_gt = dataaug.random_rotation(im_gt, angle_range=(-50, 50))
-        
-        #crop_size = (self.image_height_crop, self.image_width_crop)
-        #im_gt = dataaug.random_resized_crop(im_gt, crop_size)
-       
-        
-        #print(im_gt.shape)
-        return {'im_gt': torch.from_numpy(im_gt)} #,
-                #'meas': torch.from_numpy(meas)}
+
+        return {'im_gt': torch.from_numpy(im_gt)}

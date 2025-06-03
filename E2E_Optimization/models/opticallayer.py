@@ -87,23 +87,18 @@ class fft_conv(nn.Module):
     
     def __init__(self, gamma, a_zernike_init, Phi_list, N_B, wvls, a_zernike_fix, idx, u2):
         super(fft_conv, self).__init__()
-        #psfs = torch.tensor(psfs, dtype=torch.float32)
         gamma = torch.tensor(gamma, dtype=torch.float32)
         u2 = torch.tensor(u2, dtype=torch.float32)
         a_zernike_learn =  a_zernike_init.clone().detach().to(device="cuda:0")
         a_zernike_learn.data = torch.clamp(a_zernike_learn.data, torch.tensor(-wvls / 2).to(device="cuda:0"), torch.tensor(wvls / 2).to(device="cuda:0"))
-        #a_zernike_learn = torch.tensor(a_zernike_learn, dtype=torch.float32)
         a_zernike_learn = a_zernike_learn.to(dtype=torch.float32)
-       # print(a_zernike_learn.dtype)
 
         self.Phi_list = torch.tensor(Phi_list).to(device="cuda:0")
         self.N_B = torch.tensor(N_B).to(device="cuda:0")
         self.wvls = torch.tensor(wvls).to(device="cuda:0")
         self.a_zernike_fix = a_zernike_fix.clone().detach().to(device="cuda:0")
         self.idx = torch.tensor(idx).to(device="cuda:0")
-       # self.u2 = torch.tensor(u2).to(device="cuda:0")
         
-        #self.psfs = nn.Parameter(psfs, requires_grad =True)
         self.gamma = nn.Parameter(gamma, requires_grad =True)
         self.a_zernike_learn = nn.Parameter(a_zernike_learn, requires_grad=True)
         self.u2 =nn.Parameter(u2, requires_grad=True)
@@ -114,8 +109,6 @@ class fft_conv(nn.Module):
         c = 0 # c: baseline
         OOFphase = gen_OOFphase(self.Phi_list, self.N_B)
         a_zernike = self.a_zernike_learn + self.a_zernike_fix * self.gamma # fixed cubic and learning part
-       # print(self.u2.dtype)
-       # print(self.a_zernike_learn.dtype)
         g = torch.matmul(self.u2, a_zernike)
         
         h = F.relu(torch.reshape(g, [self.N_B, self.N_B])+c)  # height map of the phase mask, should be all positive

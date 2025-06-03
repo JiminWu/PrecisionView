@@ -25,17 +25,16 @@ import models.loss as L
 import models.resunet_vb2 as refine
 import models.dataaug as dataaug
 import models.save_loss as SL
-from models_unets.unet import Unet
 
 parser = argparse.ArgumentParser()
 # Training settings
 parser.add_argument('--epochs', default=3000, type=int)
-parser.add_argument('--digital_lr', default=0, type=float)  #1e-4
+parser.add_argument('--digital_lr', default=1e-4, type=float)  #1e-4
 parser.add_argument('--optical_lr', default=0, type=float)  #1e-9
 parser.add_argument('--batch_size', default=20, type=int) #21 for range 600
 parser.add_argument('--device', default='0')
-#parser.add_argument('--load_path_optical',default='./saved_data/trained_448resunet_0607/optical_model.pt')#default=None
-#parser.add_argument('--load_path_unet',default='./saved_data/trained_448resunet_0607/unet_model.pt')#default=None
+#parser.add_argument('--load_path_optical',default='./saved_data/trained_resunet/optical_model.pt')#default=None
+#parser.add_argument('--load_path_unet',default='./saved_data/trained_resunet/unet_model.pt')#default=None
 parser.add_argument('--load_path_optical',default=None)#default=None
 parser.add_argument('--load_path_unet',default=None)#default=None
 parser.add_argument('--save_checkponts',default=True)
@@ -78,7 +77,7 @@ a_zernike_fix = a_zernike_fix * 4
 a_zernike_fix = torch.tensor(a_zernike_fix)
 
 N_B = 25  # size of the blur kernel
-wvls = np.array([530]) * 1e-9 # wavelength 550 nm
+wvls = np.array([530]) * 1e-9 # wavelength 530 nm
 N_color = len(wvls)
 
 N_modes = u2.shape[1]  # load zernike modes
@@ -92,8 +91,8 @@ Phi_list = np.linspace(-19, 19, N_Phi, np.float32) # defocus (kwm)
 c = 0
 
 ########################################### DATA PATH ################################################
-filepath_gt = 'C:/Users/Huayu/Desktop/Huayu/Projects/HRME-LFOV/finetune/Data/E2E/train_gt/' #processed_gt_2048/'
-filepath_val_gt = 'C:/Users/Huayu/Desktop/Huayu/Projects/HRME-LFOV/finetune/Data/E2E/val_gt/' #processed_val_gt/'
+filepath_gt = './Data/E2E/train_gt/' 
+filepath_val_gt = './Data/E2E/val_gt/' 
 
 
 filepath_gt= glob.glob(filepath_gt+'*')
@@ -113,7 +112,6 @@ dataloader_test = DataLoader(dataset_test, batch_size=args.batch_size, shuffle=F
 
 
 unet_layer = refine.ResUnet_VB(channels=1, dim=16, out_dim=1, dim_mults=(1,2,4,8), resnet_block_groups=8).to(device)
-#unet_layer = Unet(n_channel_in=1, n_channel_out=1, residual=False, down='maxpool', up='nearest', activation='relu').to(device)
 
 gamma = 1
 a_zernike_learn = torch.zeros_like(a_zernike_fix)
@@ -126,27 +124,23 @@ Gloss = L.GLoss(args).to(device)
 
 
 
-
 if __name__ == '__main__':
 
     optical_optimizer = torch.optim.Adam(optical_model.parameters(), lr = args.optical_lr)
     digital_optimizer = torch.optim.Adam(unet_model.parameters(), lr = args.digital_lr)
-#    Doptimizer = torch.optim.Adam(D_model.parameters(), lr = args.lr)
-    
+
     if args.load_path_optical is not None:
         optical_model.load_state_dict(torch.load(args.load_path_optical, map_location=torch.device(device)))
-   # unet_model.load_state_dict(torch.load(args.load_path_unet, map_location=torch.device(device)))
         print('loading saved optical model')
 
 
     if args.load_path_unet is not None:
-   # optical_model.load_state_dict(torch.load(args.load_path_optical, map_location=torch.device(device)))
         unet_model.load_state_dict(torch.load(args.load_path_unet, map_location=torch.device(device)))
         print('loading saved unet model')
 
 
     if args.save_checkponts == True:
-        filepath_save = 'saved_data/' +"trained_saveinitialization/"
+        filepath_save = 'saved_data/' +"trained_resunet/"
     
         if not os.path.exists(filepath_save):
             os.makedirs(filepath_save)
@@ -158,22 +152,14 @@ if __name__ == '__main__':
     
     
     for itr in range(0,args.epochs):
-        
- #       if itr % 1000 == 0 and itr > 1:
- #               args.lr = args.lr / 2
- #               for g in optimizer.param_groups:
- #                   g['lr'] = args.lr
- #                   print('Update LR: ', g['lr'])
 
         start = time.time()
 
         for i_batch, sample_batched in enumerate(dataloader_train):
             optical_optimizer.zero_grad()
             digital_optimizer.zero_grad()
-          #  Doptimizer.zero_grad()
             
             [optical_out,a_zernike_out, h_out, PSFs_out] = optical_model(sample_batched['im_gt'].to(device))
-           # print("out", optical_out.shape)
             refine_out = unet_model(optical_out.to(device))
             
             out = hp.crop_out_training(refine_out, target_height, target_width, image_shift_height, image_shift_width)
@@ -181,11 +167,6 @@ if __name__ == '__main__':
             
             gt = hp.crop_out_training(gt, target_height, target_width, image_shift_height, image_shift_width)
             gt = gt.permute(1, 0, 2, 3)
-           # output_numpy = out.detach().cpu().numpy()[0][20]
-
-           # print("output_numpy", output_numpy.shape)
-           # print("out", out.shape)
-            #print("gt", gt.shape)
 
             Gloss(output=out, target=gt)
             Gloss.total_loss.backward()
@@ -197,20 +178,7 @@ if __name__ == '__main__':
         output_numpy = out.detach().cpu().numpy()[0][0]
         gt_numpy = gt.detach().cpu().numpy()[0][0]
         meas_numpy = optical_out.detach().cpu().numpy()[0][0]
-        
-        '''
-        for iii in range(0,N_B):
-            output_numpy = out.detach().cpu().numpy()[0][iii]
-            gt_numpy = gt.detach().cpu().numpy()[0][iii]
-            meas_numpy = optical_out.detach().cpu().numpy()[0][iii]
-            im_gt = Image.fromarray((np.clip(gt_numpy/np.max(gt_numpy),0,1)*255).astype(np.uint8))
-            im = Image.fromarray((np.clip(output_numpy/np.max(output_numpy),0,1)*255).astype(np.uint8))
-            im_meas = Image.fromarray((np.clip(meas_numpy/np.max(meas_numpy),0,1)*255).astype(np.uint8))
-            im.save(filepath_save + str(iii) + '.png')
-            im_gt.save(filepath_save + str(iii) + 'gt.png')
-            im_meas.save(filepath_save + str(iii) + 'meas.png')
-            '''
-        
+     
         if args.save_checkponts == True:
             h_out = h_out.detach().cpu().numpy()
             a_zernike_out = a_zernike_out.detach().cpu().numpy()
@@ -221,7 +189,6 @@ if __name__ == '__main__':
             np.savetxt(filepath_save + 'HeightMap_noval.txt', h_out)
             np.savetxt(filepath_save + 'a_zernike_noval.txt', a_zernike_out)
             np.save(filepath_save + 'PSFs_noval.npy', PSFs_out)
-        #    torch.save(D_model.state_dict(), filepath_save + 'D_model_noval.pt')
         
         
         if itr%1==0:
