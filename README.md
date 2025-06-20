@@ -23,7 +23,7 @@ Two supporting data files ('.mat') are necessary phase mask profile initializati
 
 ## Finetuning using captured PSFs
 
-The directory 
+The directory 'Finetune' contains the code for funetuning using real captured PSFs. Simulated ground truth - capture paris are generated using separate forward model before the training. 
 
 ## Contact Us
 In case of any queries regarding the code, please reach out to [Jimin](mailto:jimin.wu@rice.edu) or [Huayu](mailto:hhou@rice.edu).
