@@ -15,15 +15,13 @@ Python 3.8+
 
 Required packages and versions can be found in environment.yml. It can also be used to create a conda environment.
 
-## End-to-end training 
-Two supporting data files ('.mat') are necessary phase mask profile initialization.
+## End-to-end training and finetune
+The directory 'E2E_Optimization' contains the code for the end-to-end training. Two supporting data files ('.mat') are necessary phase mask profile initialization.
 
 * Step1: does not update the optical layer and only trains the digital layer.
 * Step2: jointly update the optical layer and the digital layer.
 
-## Finetuning using captured PSFs
-
-The directory 'Finetune' contains the code for funetuning using real captured PSFs. Simulated ground truth - capture paris are generated using separate forward model before the training. 
+The directory 'Finetune' contains the code for funetuning using real captured PSFs. 
 
 ## Contact Us
 In case of any queries regarding the code, please reach out to [Jimin](mailto:jimin.wu@rice.edu) or [Huayu](mailto:hhou@rice.edu).
