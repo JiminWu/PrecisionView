@@ -1,7 +1,7 @@
 # PrecisionView
 This is an open source repository of the PrecisionView ([link](to be added)).
 
-"Dual-modality, deep-learning-enabled endomicroscope with large field-of-view and depth-of-field for real-time in vivo mapping of the morphologic hallmarks of epithelial precancer", Huayu Hou<sup>&</sup>, Jimin Wu<sup>&</sup>, Jinyun Liu, Vivek Boominathan, Argaja Shende, Karthik Goli, Jennifer Carns, Richard A. Schwarz, Ann M. Gillenwater, Preetha Ramalingam, Mila P. Salcedo, Kathleen M. Schmeler, Tomasz S. Tkaczyk, Jacob T. Robinson, Ashok Veeraraghavan* and Rebecca R. Richards-Kortum*
+"Dual-modality, deep-learning-enabled endomicroscope with large field-of-view and depth-of-field for real-time in vivo imaging of epithelial precancer", Huayu Hou<sup>&</sup>, Jimin Wu<sup>&</sup>, Jinyun Liu, Vivek Boominathan, Argaja Shende, Karthik Goli, Jennifer Carns, Richard A. Schwarz, Ann M. Gillenwater, Preetha Ramalingam, Mila P. Salcedo, Kathleen M. Schmeler, Tomasz S. Tkaczyk, Jacob T. Robinson, Ashok Veeraraghavan* and Rebecca R. Richards-Kortum*
 
 <sub><sup>&</sup> Denotes equal contribution. | * Corresponding authors </sub>
 
