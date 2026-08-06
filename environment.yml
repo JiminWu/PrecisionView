@@ -114,4 +114,3 @@ dependencies:
     - wcwidth==0.2.5
     - widgetsnbextension==4.0.3
     - wrapt==1.15.0
-prefix: C:\Users\Jimin\anaconda3\envs\multiwiener
